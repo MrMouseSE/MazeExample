@@ -19,6 +19,21 @@ namespace example.Scripts
             _mazeGeneratorController.GenerateMaze();
         }
 
+        public Vector3 GetCurrentMouseTouchRoomPosition(Camera currentCamera, Vector2 mousePosition)
+        {
+            var rooms = _mazeGeneratorController.GetMazeRooms();
+            if (rooms == null || rooms.Count == 0) return Vector3.positiveInfinity;
+            foreach (var room in rooms)
+            {
+                foreach (var roomCollider in room.RoomColliders)
+                {
+                    Vector2 point = currentCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, roomCollider.transform.position.z - currentCamera.transform.position.z));
+                    if(roomCollider.OverlapPoint(point)) return room.RoomTransform.position;
+                }
+            }
+            return Vector3.positiveInfinity;
+        }
+
         public Vector3 GetMazeCenterPosition()
         {
             var rooms = _mazeGeneratorController.GetMazeRooms();

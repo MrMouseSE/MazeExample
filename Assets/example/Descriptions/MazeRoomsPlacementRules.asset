@@ -43,7 +43,8 @@ MonoBehaviour:
     - RoomType: 1
       RoomPrefab: {fileID: 4553927143899573667, guid: b3c8fc9beb66f7d4d890d01f1644c8bd, type: 3}
       MaximumCount: 1
-      AdditionalItems: []
+      AdditionalItems:
+      - {fileID: 6764966784899855370, guid: 8377d6ec554e23b4dacd4bb2ac4790a8, type: 3}
   - Difficulty: 1
     MainPathMinMaxSteps: {x: 10, y: 12}
     RoomsPlacementRules:
