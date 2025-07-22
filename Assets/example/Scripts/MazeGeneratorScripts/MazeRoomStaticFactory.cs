@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using example.Scripts.AdditionalItemsScripts;
 using example.Scripts.MazeRulesDescriptions;
 using example.Scripts.RoomScripts;
 using UnityEngine;
@@ -108,6 +109,21 @@ namespace example.Scripts.MazeGeneratorScripts
             RoomContainer newInstantiatedRoom = Object.Instantiate(roomContainer);
             newInstantiatedRoom.InitializeRoom();
             return newInstantiatedRoom;
+        }
+
+        public static void GenerateAdditionalRoomItem(List<RoomContainer> mazeRooms)
+        {
+            foreach (var mazeRoom in mazeRooms)
+            {
+                int additionalItemRandomCount = Random.Range(0, mazeRoom.RoomAdditionalItemsPlaces.Length)+1;
+                for (var index = 0; index < additionalItemRandomCount; index++)
+                {
+                    var roomRule = _mazeRoomsPlacementRule.RoomsPlacementRules.Find(x => x.RoomType == mazeRoom.RoomType);
+                    if (roomRule.AdditionalItems == null || roomRule.AdditionalItems.Length == 0) continue;
+                    var roomAdditionalItemsPlace = mazeRoom.RoomAdditionalItemsPlaces[index];
+                    Object.Instantiate(roomRule.AdditionalItems[Random.Range(0, roomRule.AdditionalItems.Length)], roomAdditionalItemsPlace);
+                }
+            }
         }
 
         private static void PlaceNewRoom(ConnectionDirection nextConnectionDirection, 

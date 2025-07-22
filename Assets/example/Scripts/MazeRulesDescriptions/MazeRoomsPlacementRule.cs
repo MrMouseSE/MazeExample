@@ -1,3 +1,4 @@
+using example.Scripts.AdditionalItemsScripts;
 using example.Scripts.RoomScripts;
 
 namespace example.Scripts.MazeRulesDescriptions
@@ -8,5 +9,6 @@ namespace example.Scripts.MazeRulesDescriptions
         public RoomTypes RoomType;
         public RoomContainer RoomPrefab;
         public int MaximumCount;
+        public AdditionalItemContainer[] AdditionalItems;
     }
 }

@@ -27,6 +27,7 @@ namespace example.Scripts.MazeGeneratorScripts
             int currentGenerationStep = Random.Range(_currentMazePlacementRules.MainPathMinMaxSteps.x, 
                 _currentMazePlacementRules.MainPathMinMaxSteps.y);
             GenerateMainPath(currentGenerationStep);
+            MazeRoomStaticFactory.GenerateAdditionalRoomItem(_mazeRooms);
         }
 
         public List<RoomContainer> GetMazeRooms()
@@ -49,17 +50,17 @@ namespace example.Scripts.MazeGeneratorScripts
             {
                 var stepForGeneration = currentPathStep == pathSteps ? -1 : currentPathStep;
                 RoomContainer newRoom = MazeRoomStaticFactory.CreateRoom(stepForGeneration, _mazeRooms);
-                SetCurrentData(newRoom);
+                AddRoomToList(newRoom);
             }
         }
 
         private void GenerateStartRoom()
         {
             RoomContainer newRoom = MazeRoomStaticFactory.CreateRoom();
-            SetCurrentData(newRoom);
+            AddRoomToList(newRoom);
         }
 
-        private void SetCurrentData(RoomContainer room)
+        private void AddRoomToList(RoomContainer room)
         {
             _mazeRooms.Add(room);
         }
