@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using example.Scripts.AdditionalItemsScripts;
 using example.Scripts.MazeRulesDescriptions;
 using example.Scripts.RoomScripts;
 using UnityEngine;
@@ -13,14 +12,11 @@ namespace example.Scripts.MazeGeneratorScripts
     public static class MazeRoomStaticFactory
     {
         private static MazePlacementDifficultyRule _mazeRoomsPlacementRule;
-        private static RoomTypes[] _availableRoomTypes = 
-        {
-            RoomTypes.Corridor, RoomTypes.Fight, RoomTypes.Rest, RoomTypes.Quest
-        };
+        private static RoomTypes[] _availableRoomTypes = { RoomTypes.Corridor, RoomTypes.Fight, RoomTypes.Rest, RoomTypes.Quest };
 
         private static int[] _connectionIndexesMap = new[] { 0, 1, 2, 3, 1, 0, 3, 2 };
-        
-        private static List<ConnectionDirection> _randomDirectionIndexesList = Enum.GetValues(typeof(ConnectionDirection)).Cast<ConnectionDirection>().ToList();
+        private static List<ConnectionDirection> _randomDirectionIndexesList = 
+            Enum.GetValues(typeof(ConnectionDirection)).Cast<ConnectionDirection>().ToList();
         private static readonly int[] _oppositeDerectionsIndexes = new[] { 1, 0, 3, 2 };
 
         public static void SetCurrentDifficulty(MazePlacementDifficultyRule mazeRoomsPlacementRule)
@@ -29,9 +25,19 @@ namespace example.Scripts.MazeGeneratorScripts
             
         }
         
-        public static ConnectionDirection GetRandomDirection()
+        public static void GenerateAdditionalRoomItem(List<RoomContainer> mazeRooms)
         {
-            return (ConnectionDirection)Random.Range(0, _randomDirectionIndexesList.Count);
+            foreach (var mazeRoom in mazeRooms)
+            {
+                int additionalItemRandomCount = Random.Range(0, mazeRoom.RoomAdditionalItemsPlaces.Length)+1;
+                for (var index = 0; index < additionalItemRandomCount; index++)
+                {
+                    var roomRule = _mazeRoomsPlacementRule.RoomsPlacementRules.Find(x => x.RoomType == mazeRoom.RoomType);
+                    if (roomRule.AdditionalItems == null || roomRule.AdditionalItems.Length == 0) continue;
+                    var roomAdditionalItemsPlace = mazeRoom.RoomAdditionalItemsPlaces[index];
+                    Object.Instantiate(roomRule.AdditionalItems[Random.Range(0, roomRule.AdditionalItems.Length)], roomAdditionalItemsPlace);
+                }
+            }
         }
 
         public static RoomContainer CreateRoom()
@@ -44,22 +50,20 @@ namespace example.Scripts.MazeGeneratorScripts
         
         public static RoomContainer CreateRoom(int currentRoomPlacementStep, List<RoomContainer> mazeRooms)
         {
-            RoomContainer roomContainer = null;
+            
             RoomContainer previousRoomContainer = mazeRooms[^1];
             ConnectionDirection previousConnectionDirection = previousRoomContainer.GetLastConnectionDirection();
-            switch (currentRoomPlacementStep)
-            {
-                case -1:
-                    roomContainer = InstantiateRoom(RoomTypes.End);
-                    break;
-                default:
-                    roomContainer = InstantiateRoom(GetRandomRoom(mazeRooms));
-                    break;
-            }
+            RoomTypes newRoomType = GetRandomRoom(mazeRooms, currentRoomPlacementStep == -1);
+            RoomContainer roomContainer = InstantiateRoom(newRoomType);
             ConnectionDirection nextConnectionDirection = GetNextConnectionDirection(previousConnectionDirection, mazeRooms, roomContainer);
             PlaceNewRoom(nextConnectionDirection, mazeRooms[^1], roomContainer);
             
             return roomContainer;
+        }
+        
+        private static ConnectionDirection GetRandomDirection()
+        {
+            return (ConnectionDirection)Random.Range(0, _randomDirectionIndexesList.Count);
         }
         
         private static int GetOppositeDirection(ConnectionDirection direction)
@@ -69,16 +73,15 @@ namespace example.Scripts.MazeGeneratorScripts
 
         private static ConnectionDirection GetNextConnectionDirection(ConnectionDirection previousConnectionDirection, List<RoomContainer> mazeRooms, RoomContainer room)
         {
-            ConnectionDirection nextConnectionDirection;
             var unavailableConnectionDirectionIndex = _oppositeDerectionsIndexes[(int)previousConnectionDirection];
             List<ConnectionDirection> newConnectionDirections =
                 _randomDirectionIndexesList.FindAll(x => x != (ConnectionDirection)unavailableConnectionDirectionIndex);
 
             for (int i = 0; i < newConnectionDirections.Count; i++)
             {
-                nextConnectionDirection = newConnectionDirections[Random.Range(0, newConnectionDirections.Count)];
-                if (CheckNextPositionAvailable(mazeRooms,
-                        GetRoomPosition(nextConnectionDirection, mazeRooms[^1], room)))
+                ConnectionDirection nextConnectionDirection = newConnectionDirections[Random.Range(0, newConnectionDirections.Count)];
+                Vector3 newRoomPosition = GetRoomPosition(nextConnectionDirection, mazeRooms[^1], room);
+                if (CheckNextPositionAvailable(mazeRooms, newRoomPosition))
                 {
                     return nextConnectionDirection;
                 }
@@ -88,8 +91,9 @@ namespace example.Scripts.MazeGeneratorScripts
             throw new NotImplementedException("Not available connection direction");
         }
 
-        private static RoomTypes GetRandomRoom(List<RoomContainer> mazeRooms)
+        private static RoomTypes GetRandomRoom(List<RoomContainer> mazeRooms, bool isThisTheEndOfPath)
         {
+            if(isThisTheEndOfPath) return RoomTypes.End;
             List<RoomTypes> currentAvailableRoomTypes = new List<RoomTypes>();
             foreach (var availableRoomType in _availableRoomTypes)
             {
@@ -109,21 +113,6 @@ namespace example.Scripts.MazeGeneratorScripts
             RoomContainer newInstantiatedRoom = Object.Instantiate(roomContainer);
             newInstantiatedRoom.InitializeRoom();
             return newInstantiatedRoom;
-        }
-
-        public static void GenerateAdditionalRoomItem(List<RoomContainer> mazeRooms)
-        {
-            foreach (var mazeRoom in mazeRooms)
-            {
-                int additionalItemRandomCount = Random.Range(0, mazeRoom.RoomAdditionalItemsPlaces.Length)+1;
-                for (var index = 0; index < additionalItemRandomCount; index++)
-                {
-                    var roomRule = _mazeRoomsPlacementRule.RoomsPlacementRules.Find(x => x.RoomType == mazeRoom.RoomType);
-                    if (roomRule.AdditionalItems == null || roomRule.AdditionalItems.Length == 0) continue;
-                    var roomAdditionalItemsPlace = mazeRoom.RoomAdditionalItemsPlaces[index];
-                    Object.Instantiate(roomRule.AdditionalItems[Random.Range(0, roomRule.AdditionalItems.Length)], roomAdditionalItemsPlace);
-                }
-            }
         }
 
         private static void PlaceNewRoom(ConnectionDirection nextConnectionDirection, 
