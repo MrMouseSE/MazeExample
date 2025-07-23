@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using example.Scripts.RoomScripts;
 using UnityEditor;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace example.Scripts.Editor.RoomScripts
     [CustomEditor(typeof(RoomContainer))]
     public class RoomContainerEditor : UnityEditor.Editor
     {
+        private List<string> _errorMessages = new List<string>();
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -16,10 +18,13 @@ namespace example.Scripts.Editor.RoomScripts
             {
                 FillContainer();
             }
+
+            DrawErrorMessages();
         }
 
         private void FillContainer()
         {
+            _errorMessages.Clear();
             RoomContainer roomContainer = (RoomContainer)target;
             var gameObjectProperty = serializedObject.FindProperty("RoomGameObject");
             gameObjectProperty.objectReferenceValue = roomContainer.gameObject;
@@ -62,7 +67,7 @@ namespace example.Scripts.Editor.RoomScripts
                 }
             }
 
-            if (connectionPoints == null) DrawErrorMessage("Miss component in prefab: Connection points");
+            if (connectionPoints == null) AddErrorMessage("Miss component in prefab: Connection points");
             else
             {
                 var property = serializedObject.FindProperty("ConnectPoints");
@@ -76,7 +81,7 @@ namespace example.Scripts.Editor.RoomScripts
                     else if (connectionPoint.name.Contains("Down")) index = 3;
                     else
                     {
-                        DrawErrorMessage("Undeclared connection point " + connectionPoint.name);
+                        AddErrorMessage("Undeclared connection point " + connectionPoint.name);
                         break;
                     }
 
@@ -84,7 +89,7 @@ namespace example.Scripts.Editor.RoomScripts
                 }
             }
 
-            if (additionalItemPoints == null) DrawErrorMessage("Miss component in prefab: Additional item points");
+            if (additionalItemPoints == null) AddErrorMessage("Miss component in prefab: Additional item points");
             else
             {
                 var property = serializedObject.FindProperty("RoomAdditionalItemsPlaces");
@@ -95,7 +100,7 @@ namespace example.Scripts.Editor.RoomScripts
                 }
             }
 
-            if (roomEffects == null) DrawErrorMessage("Miss component in prefab: Room effects");
+            if (roomEffects == null) AddErrorMessage("Miss component in prefab: Room effects");
             else
             {
                 var property = serializedObject.FindProperty("RoomEffects");
@@ -110,7 +115,7 @@ namespace example.Scripts.Editor.RoomScripts
                 }
             }
 
-            if (roomBounds == null) DrawErrorMessage("Miss component in prefab: Room bounds");
+            if (roomBounds == null) AddErrorMessage("Miss component in prefab: Room bounds");
             else
             {
                 var property = serializedObject.FindProperty("RoomColliders");
@@ -127,10 +132,18 @@ namespace example.Scripts.Editor.RoomScripts
             PrefabUtility.RecordPrefabInstancePropertyModifications(roomContainer);
         }
 
-        private void DrawErrorMessage(string missingItemName)
+        private void AddErrorMessage(string missingItemName)
         {
-            EditorGUILayout.Space();
-            EditorGUILayout.HelpBox(missingItemName, MessageType.Error);
+            _errorMessages.Add(missingItemName);
+        }
+
+        private void DrawErrorMessages()
+        {
+            foreach (var errorMessage in _errorMessages)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.HelpBox(errorMessage, MessageType.Warning);
+            }
         }
 
         private void InsertPropertyArrayElement(SerializedProperty property, int index, UnityEngine.Object value)

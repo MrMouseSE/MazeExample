@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using example.Scripts.MazeRulesDescriptions;
 using example.Scripts.RoomScripts;
-using Unity.VisualScripting;
-using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 

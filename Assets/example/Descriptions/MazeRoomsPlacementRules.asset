@@ -18,7 +18,7 @@ MonoBehaviour:
     RoomsPlacementRules:
     - RoomType: 3
       RoomPrefab: {fileID: 4162127982355693207, guid: 7f84ff00316a2b64f8d58405a459dbed, type: 3}
-      MaximumCount: 2
+      MaximumCount: 1
       AdditionalItems:
       - {fileID: 5003448600481667796, guid: e18eaa7b81ab7154d977bd1929626620, type: 3}
     - RoomType: 4

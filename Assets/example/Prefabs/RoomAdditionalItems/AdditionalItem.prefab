@@ -137,6 +137,7 @@ MonoBehaviour:
   ItemGameObject: {fileID: 1901114946652724685}
   ItemTransform: {fileID: 5172123925929027522}
   ItemSprite: {fileID: 1193368589500303560}
+  ItemEffect: {fileID: 0}
 --- !u!1 &3587997323992499919
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,7 +222,7 @@ SpriteRenderer:
   m_Size: {x: 5.12, y: 4.6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &5184105993941351441
